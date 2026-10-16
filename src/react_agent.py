@@ -131,19 +131,24 @@ def system_prompt(mode: str) -> str:
 class LocalLLM:
     """Greedy completion from a local Hugging Face chat model, with stop strings."""
 
-    def __init__(self, name: str = "Qwen/Qwen2.5-0.5B-Instruct"):
+    def __init__(self, name: str = "Qwen/Qwen2.5-0.5B-Instruct", device: str | None = None):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
         self.torch, self.name = torch, name
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        if self.device == "cuda":   # half precision on GPU: bf16 where supported (A100, L4), fp16 otherwise (T4)
+            dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        else:
+            dtype = torch.float32
         self.tok = AutoTokenizer.from_pretrained(name)
-        self.model = AutoModelForCausalLM.from_pretrained(name, torch_dtype=torch.float32).eval()
+        self.model = AutoModelForCausalLM.from_pretrained(name, torch_dtype=dtype).to(self.device).eval()
         self.tokens_in = self.tokens_out = 0
 
     def __call__(self, system: str, user: str, partial: str, stop: list[str] | None, max_new_tokens: int = 160) -> str:
         msgs = [{"role": "system", "content": system}, {"role": "user", "content": user}]
         # The assistant turn is left OPEN and pre-filled with the trajectory so far: the model continues it.
         text = self.tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True) + partial
-        enc = self.tok(text, return_tensors="pt")
+        enc = self.tok(text, return_tensors="pt").to(self.device)
         with self.torch.no_grad():
             out = self.model.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False,
                                       stop_strings=stop or None, tokenizer=self.tok,
