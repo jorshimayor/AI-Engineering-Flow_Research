@@ -15,7 +15,7 @@ sentence now always comes first. Level 1 is unchanged from v1.1.
 
 Splits (protocol section 3.2):
     dev  : 2 templates  (bakery, parking)          free to inspect, used for calibration
-    test : 8 templates  (never shown in prompts)   generated from a fixed seed, run once
+    test : 8 templates  (never shown in prompts)   480 problems (v1.3), fixed seed, run once
 
 Every problem carries a `solution` expression; check_problems() evaluates it with
 the agent's own calculator and confirms it equals `gold`.
@@ -217,14 +217,14 @@ DEV_TEMPLATES: dict[str, Callable] = {"bakery": bakery, "parking": parking}
 TEST_TEMPLATES: dict[str, Callable] = {"orchard": orchard, "printing": printing, "water_tank": water_tank,
                                         "school_trip": school_trip, "factory": factory, "fundraiser": fundraiser,
                                         "shipping": shipping, "cinema": cinema}
-GENERATOR_VERSION = "1.2"   # bump whenever problems change; notebooks assert it to catch stale clones
+GENERATOR_VERSION = "1.3"   # bump whenever problems change; notebooks assert it to catch stale clones
 LEVELS = (1, 2, 3, 4)
 DEV_SEED, TEST_SEED = 4100, 4200       # test seed is fixed now; test problems are generated, never read, before the run
 
 
 def make_problems(split: str, level: int, n_per: int | None = None, seed: int | None = None) -> list[dict]:
     templates = DEV_TEMPLATES if split == "dev" else TEST_TEMPLATES
-    n_per = n_per or (20 if split == "dev" else 50)
+    n_per = n_per or (20 if split == "dev" else 60)       # protocol v1.3: 480 test problems (8 x 60)
     rng = random.Random((seed if seed is not None else (DEV_SEED if split == "dev" else TEST_SEED)) + level)
     out = []
     for i in range(n_per):
