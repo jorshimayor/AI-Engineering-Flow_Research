@@ -217,6 +217,7 @@ DEV_TEMPLATES: dict[str, Callable] = {"bakery": bakery, "parking": parking}
 TEST_TEMPLATES: dict[str, Callable] = {"orchard": orchard, "printing": printing, "water_tank": water_tank,
                                         "school_trip": school_trip, "factory": factory, "fundraiser": fundraiser,
                                         "shipping": shipping, "cinema": cinema}
+GENERATOR_VERSION = "1.2"   # bump whenever problems change; notebooks assert it to catch stale clones
 LEVELS = (1, 2, 3, 4)
 DEV_SEED, TEST_SEED = 4100, 4200       # test seed is fixed now; test problems are generated, never read, before the run
 
