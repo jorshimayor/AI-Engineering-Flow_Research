@@ -4,8 +4,14 @@ The Week 3 problems were too easy once a model could read them (Act-only scored
 97% at 1.5B and 100% at 3B), so these add the features that stress planning:
 
     level 1: 3 steps, 1 distractor quantity, facts in natural order
-    level 2: 3 steps, 1 distractor, facts shuffled (text order != operation order)
-    level 3: 4 steps (an extra operation or a unit conversion), 2 distractors, shuffled
+    level 2: 3 steps, 1 distractor, scene sentence first, other facts shuffled
+    level 3: 3 steps, 2 distractors, scene sentence first, other facts shuffled
+    level 4: 4 steps (an extra operation or a unit conversion), 2 distractors, scene first, shuffled
+
+Protocol v1.2 (after dev calibration v1): shuffling *every* sentence made the text
+incoherent (1.5B solved 71% when the scene sentence happened to stay first, 15%
+otherwise), which measures reading badly written text, not planning. The scene-setting
+sentence now always comes first. Level 1 is unchanged from v1.1.
 
 Splits (protocol section 3.2):
     dev  : 2 templates  (bakery, parking)          free to inspect, used for calibration
@@ -31,15 +37,21 @@ def _fmt(n: int) -> str:
 
 
 def _assemble(rng: random.Random, level: int, facts: list[str], distractors: list[str], question: str) -> str:
-    facts = list(facts)
-    n_distract = 2 if level == 3 else 1
+    """facts[0] is the scene-setting sentence ("A bakery bakes ...") and always comes first."""
+    n_distract = 1 if level <= 2 else 2
     extra = rng.sample(distractors, n_distract)
     if level == 1:
         body = facts + extra
     else:
-        body = facts + extra
-        rng.shuffle(body)
+        rest = facts[1:] + extra
+        rng.shuffle(rest)
+        body = [facts[0]] + rest
     return " ".join(body + [question])
+
+
+def _template_variant(level: int) -> int:
+    """Templates know two variants: 3 steps (passed as 1) and 4 steps (passed as 3)."""
+    return 3 if level == 4 else 1
 
 
 # --------------------------------------------------------------------- templates
@@ -205,6 +217,7 @@ DEV_TEMPLATES: dict[str, Callable] = {"bakery": bakery, "parking": parking}
 TEST_TEMPLATES: dict[str, Callable] = {"orchard": orchard, "printing": printing, "water_tank": water_tank,
                                         "school_trip": school_trip, "factory": factory, "fundraiser": fundraiser,
                                         "shipping": shipping, "cinema": cinema}
+LEVELS = (1, 2, 3, 4)
 DEV_SEED, TEST_SEED = 4100, 4200       # test seed is fixed now; test problems are generated, never read, before the run
 
 
@@ -215,7 +228,7 @@ def make_problems(split: str, level: int, n_per: int | None = None, seed: int | 
     out = []
     for i in range(n_per):
         for name, fn in templates.items():
-            facts, dis, q, gold, sol, ops = fn(rng, level)
+            facts, dis, q, gold, sol, ops = fn(rng, _template_variant(level))
             out.append(dict(id=len(out), split=split, level=level, template=name,
                             question=_assemble(rng, level, facts, dis, q), gold=gold, solution=sol, ops=list(ops)))
     return out
@@ -232,8 +245,8 @@ def check_problems(problems: list[dict]) -> dict:
             errors.append(f"{p['template']}#{p['id']}: gold {p['gold']} is not a positive integer")
         if tuple(p["ops"]) in EXEMPLAR_OPS:
             errors.append(f"{p['template']}#{p['id']}: operation sequence matches an exemplar")
-        if len(p["ops"]) != (4 if p["level"] == 3 else 3):
-            errors.append(f"{p['template']}#{p['id']}: expected {4 if p['level'] == 3 else 3} operations, got {len(p['ops'])}")
+        if len(p["ops"]) != (4 if p["level"] == 4 else 3):
+            errors.append(f"{p['template']}#{p['id']}: expected {4 if p['level'] == 4 else 3} operations, got {len(p['ops'])}")
     return {"n": len(problems), "errors": errors,
             "templates": sorted({p["template"] for p in problems}),
             "gold_range": (min(p["gold"] for p in problems), max(p["gold"] for p in problems))}
@@ -242,7 +255,7 @@ def check_problems(problems: list[dict]) -> dict:
 def leakage_check() -> list[str]:
     """Gate 4: no test template is a dev template, and no test operation sequence matches an exemplar."""
     issues = [f"template {t} is in both dev and test" for t in set(DEV_TEMPLATES) & set(TEST_TEMPLATES)]
-    for level in (1, 2, 3):
+    for level in LEVELS:
         for p in make_problems("test", level, n_per=1):
             if tuple(p["ops"]) in EXEMPLAR_OPS:
                 issues.append(f"test template {p['template']} (level {level}) matches an exemplar's operations")
