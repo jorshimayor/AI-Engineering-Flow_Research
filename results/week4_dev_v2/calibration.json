@@ -1,0 +1,77 @@
+{
+ "protocol_version": "1.2",
+ "calibration": "v2",
+ "split": "dev",
+ "levels": [
+  1,
+  2,
+  3,
+  4
+ ],
+ "selection_mode": "per-model",
+ "chosen_levels": {
+  "Qwen/Qwen2.5-1.5B-Instruct": 2,
+  "Qwen/Qwen2.5-3B-Instruct": 3
+ },
+ "selection_table": {
+  "1": {
+   "act": {
+    "Qwen/Qwen2.5-1.5B-Instruct": 0.75,
+    "Qwen/Qwen2.5-3B-Instruct": 1.0
+   },
+   "eligible": false
+  },
+  "2": {
+   "act": {
+    "Qwen/Qwen2.5-1.5B-Instruct": 0.525,
+    "Qwen/Qwen2.5-3B-Instruct": 0.875
+   },
+   "eligible": false
+  },
+  "3": {
+   "act": {
+    "Qwen/Qwen2.5-1.5B-Instruct": 0.35,
+    "Qwen/Qwen2.5-3B-Instruct": 0.725
+   },
+   "eligible": false
+  },
+  "4": {
+   "act": {
+    "Qwen/Qwen2.5-1.5B-Instruct": 0.0,
+    "Qwen/Qwen2.5-3B-Instruct": 0.5
+   },
+   "eligible": false
+  }
+ },
+ "gates": {
+  "Qwen/Qwen2.5-1.5B-Instruct": {
+   "direct": 0.0,
+   "act": 0.525,
+   "react": 0.35,
+   "format_fail": {
+    "act": 0.0,
+    "react": 0.075
+   },
+   "passed": {
+    "1_direct_le_10pct": true,
+    "3_format_fail_le_20pct": true,
+    "5_act_in_40_85": true
+   }
+  },
+  "Qwen/Qwen2.5-3B-Instruct": {
+   "direct": 0.0,
+   "act": 0.725,
+   "react": 0.9,
+   "format_fail": {
+    "act": 0.0,
+    "react": 0.05
+   },
+   "passed": {
+    "1_direct_le_10pct": true,
+    "3_format_fail_le_20pct": true,
+    "5_act_in_40_85": true
+   }
+  }
+ },
+ "all_gates_passed": true
+}
