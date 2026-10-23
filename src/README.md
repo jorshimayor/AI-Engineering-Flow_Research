@@ -17,7 +17,7 @@
 uv run python src/react_agent.py "A truck carries 1,284 boxes with 36 cans each. 2,050 are damaged. How many good cans?"
 uv run python src/run_react_bench.py --model Qwen/Qwen2.5-1.5B-Instruct          # Week 3 benchmark
 uv run python src/run_react_bench.py --task dev --level 2 --max-steps 8          # Week 4 dev split
-uv run python src/run_react_bench.py --summary results/week3_gpu/*.jsonl         # accuracy, CIs, cost
+uv run python src/run_react_bench.py --summary results/week3/*.jsonl             # accuracy, CIs, cost
 uv run python src/figures.py                                                     # rebuild figures
 ```
 

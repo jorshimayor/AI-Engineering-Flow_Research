@@ -4,8 +4,8 @@ Outlines built with the `writing-studio` skill; both pass its strict outline che
 
 | # | Article | Reader need | Keyword | Outline |
 |---|---|---|---|---|
-| 1 | I Audited 15 Of My Own LLM Evaluation Claims And Only 8 Survived | Give Me Perspective | LLM evaluation | [llm-evaluation-audit.outline.md](outlines/llm-evaluation-audit.outline.md) |
-| 2 | How To Do AI Agent Evaluation: Design The Protocol Before You Run It | Guide Me | AI agent evaluation | [ai-agent-evaluation-protocol.outline.md](outlines/ai-agent-evaluation-protocol.outline.md) |
+| 1 | I Audited 15 Of My Own LLM Evaluation Claims And Only 8 Survived | Give Me Perspective | LLM evaluation | [llm-evaluation-audit.outline.md](llm-evaluation-audit.outline.md) |
+| 2 | How To Do AI Agent Evaluation: Design The Protocol Before You Run It | Guide Me | AI agent evaluation | [ai-agent-evaluation-protocol.outline.md](ai-agent-evaluation-protocol.outline.md) |
 
 **Order:** 1 then 2.
 **Keywords:** chosen from Google and YouTube autocomplete and current search results; no volume data.

@@ -2,7 +2,7 @@
 
 Moved out of the Week 3 notebook so the same 30 problems can be regenerated
 anywhere (laptop, Colab, Kaggle). make_problems(5, seed=0) reproduces the
-exact problems behind results/week3/runs.jsonl.
+exact problems behind results/week3/Qwen2.5-0.5B-Instruct.jsonl.
 """
 from __future__ import annotations
 

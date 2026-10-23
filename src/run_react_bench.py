@@ -5,7 +5,7 @@ run (a Colab disconnect, say) resumes where it stopped when re-launched.
 
     python src/run_react_bench.py --model Qwen/Qwen2.5-1.5B-Instruct
     python src/run_react_bench.py --model Qwen/Qwen2.5-3B-Instruct --modes act react
-    python src/run_react_bench.py --summary results/week3_gpu/*.jsonl
+    python src/run_react_bench.py --summary results/week3/*.jsonl
 
 Week 4 protocol task set (harder problems, src/react_tasks_v2.py):
     python src/run_react_bench.py --task dev --level 2 --modes act --max-steps 8
@@ -122,7 +122,7 @@ def main() -> None:
     ap.add_argument("--n-per", type=int, help="problems per template (week3: 5, dev: 20, test: 50)")
     ap.add_argument("--seed", type=int)
     ap.add_argument("--max-steps", type=int, default=6, help="6 for week3, 8 for the protocol (v1.1)")
-    ap.add_argument("--out", type=Path, help="default: results/<task>/<model>[-L<level>].jsonl")
+    ap.add_argument("--out", type=Path, help="default: results/week3/<model>.jsonl or results/week4/{calibration,test}/<model>-L<level>.jsonl")
     ap.add_argument("--summary", nargs="*", type=Path, help="only print summaries of these result files")
     args = ap.parse_args()
     if args.summary is not None:
@@ -130,9 +130,9 @@ def main() -> None:
         return
     name = args.model.split("/")[-1]
     if args.task == "week3":
-        default_out = Path("results/week3_gpu") / f"{name}.jsonl"
+        default_out = Path("results/week3") / f"{name}.jsonl"
     else:
-        default_out = Path(f"results/week4_{args.task}") / f"{name}-L{args.level}.jsonl"
+        default_out = Path("results/week4") / ("calibration" if args.task == "dev" else "test") / f"{name}-L{args.level}.jsonl"
     problems = load_problems(args.task, args.n_per, args.seed, args.level)
     summary([run(args.model, args.modes, problems, args.out or default_out, args.max_steps)])
 

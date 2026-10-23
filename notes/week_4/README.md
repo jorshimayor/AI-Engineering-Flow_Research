@@ -2,7 +2,7 @@
 
 **Paper:** [AI Agents That Matter](https://arxiv.org/abs/2407.01502) (Kapoor et al., TMLR 2025)
 **Lab:** design, on paper, an eval protocol for a specific claim, with explicit success and failure criteria.
-**Deliverables:** [frozen protocol](../../protocol/README.md) · [rigour memo](rigour_memo.md) · [Phase 1 log](../phase_1_log.md)
+**Deliverables:** [frozen protocol](eval_protocol_v1.3.md) · [rigour memo](rigour_memo.md) · [Phase 1 log](../phase_1_log.md)
 **Notebooks:** [`week4_rigour_audit.ipynb`](../../jupyter/week4_rigour_audit.ipynb) (no models, 2 minutes) · [`week4_calibration_colab.ipynb`](../../jupyter/week4_calibration_colab.ipynb) · [`week4_test_run_colab.ipynb`](../../jupyter/week4_test_run_colab.ipynb)
 **Code:** [`src/stats.py`](../../src/stats.py) · [`src/react_tasks_v2.py`](../../src/react_tasks_v2.py) · [`src/protocol_analysis.py`](../../src/protocol_analysis.py)
 
@@ -45,6 +45,16 @@ It went through four versions before freezing. Each change was made before any t
 
 **Status:** frozen at v1.3 (commit `5e8ad76`, 16 October 2026). Test run pending (about 7.5 GPU hours).
 
+| File | Contents |
+|---|---|
+| [`eval_protocol_v1.3.md`](eval_protocol_v1.3.md) | The frozen protocol: claim, design, sample size, pass/fail rules, threats, analysis plan, revision history |
+| [`eval_protocol_config.json`](eval_protocol_config.json) | Machine-readable settings read by the test-run notebook |
+| [`src/protocol_analysis.py`](../../src/protocol_analysis.py) | The analysis, written before the test |
+
+Check the protocol hasn't changed: `shasum -a 256 notes/week_4/eval_protocol_v1.3.md` should print `4fd25c86f19344dda5ecf77f6948390c359f7bb3073740aedd0901e9b7748cd4`.
+
+The file was moved here from `protocol/` after freezing, without edits, so its three relative links point one level too high. The correct targets: [`src/react_tasks_v2.py`](../../src/react_tasks_v2.py), [`src/run_react_bench.py`](../../src/run_react_bench.py), [`jupyter/week4_rigour_audit.ipynb`](../../jupyter/week4_rigour_audit.ipynb). Its mentions of `results/week3_gpu/` and `results/week4_dev_v*/` now live in `results/week3/` and `results/week4/calibration_v*/`.
+
 ## Exploratory signal (not the test)
 
 ![ReAct minus Act](../../results/figures/week4_react_minus_act.png)
@@ -53,5 +63,5 @@ On the 40 dev problems, ReAct trailed Act-only by 17.5 points at 1.5B and led by
 
 ## Files
 
-- Calibration data: [`results/week4_dev_v1/`](../../results/week4_dev_v1/), [`results/week4_dev_v2/`](../../results/week4_dev_v2/)
+- Calibration data: [`results/week4/calibration_v1/`](../../results/week4/calibration_v1/), [`results/week4/calibration_v2/`](../../results/week4/calibration_v2/)
 - Sources: [`sources.md`](sources.md) · Reading list: [`resources.md`](resources.md) · Article outlines: [`articles/`](articles/README.md)

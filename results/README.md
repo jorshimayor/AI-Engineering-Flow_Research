@@ -6,10 +6,8 @@
 |---|---|
 | [`week1/`](week1/) | Week 1 charts |
 | [`week2/`](week2/) | `icl_runs.jsonl` (140 few-shot configurations), `passkey.json`, charts |
-| [`week3/`](week3/) | `runs.jsonl`: 0.5B, 4 modes × 30 problems |
-| [`week3_gpu/`](week3_gpu/) | 1.5B and 3B runs, 120 each |
-| [`week4/`](week4/) | `claim_audit.json`, `power_table.json`, charts |
-| [`week4_dev_v1/`](week4_dev_v1/), [`week4_dev_v2/`](week4_dev_v2/) | Difficulty calibration runs and `calibration.json` |
+| [`week3/`](week3/) | One file per model (0.5B, 1.5B, 3B): 4 modes × 30 problems each, with trajectories |
+| [`week4/`](week4/) | `claim_audit.json`, `power_table.json`, charts; `calibration_v1/` and `calibration_v2/` (difficulty calibration); `test/` (pre-registered test, once run) |
 
 ## Agent run format (JSONL, one episode per line)
 

@@ -97,9 +97,7 @@ def week2_what_moves_accuracy() -> None:
 
 # ------------------------------------------------------------------ week 3
 def week3_runs() -> dict[str, list[dict]]:
-    return {"0.5B": jsonl(RES / "week3" / "runs.jsonl"),
-            "1.5B": jsonl(RES / "week3_gpu" / "Qwen2.5-1.5B-Instruct.jsonl"),
-            "3B": jsonl(RES / "week3_gpu" / "Qwen2.5-3B-Instruct.jsonl")}
+    return {size: jsonl(RES / "week3" / f"Qwen2.5-{size}-Instruct.jsonl") for size in ("0.5B", "1.5B", "3B")}
 
 
 def week3_accuracy_by_size() -> None:
@@ -175,7 +173,7 @@ def week4_claim_audit() -> None:
 
 
 def week4_difficulty_calibration() -> None:
-    cal = json.loads((RES / "week4_dev_v2" / "calibration.json").read_text())
+    cal = json.loads((RES / "week4" / "calibration_v2" / "calibration.json").read_text())
     levels = [int(l) for l in cal["selection_table"]]
     fig, ax = plt.subplots(figsize=(7.5, 4))
     ax.axhspan(40, 85, color=GRID, alpha=0.6, zorder=0)
@@ -200,10 +198,10 @@ def week4_react_minus_act() -> None:
     rows = []
     for size, R in week3_runs().items():
         rows.append((f"{size}  Week 3 problems", R))
-    cal = json.loads((RES / "week4_dev_v2" / "calibration.json").read_text())
+    cal = json.loads((RES / "week4" / "calibration_v2" / "calibration.json").read_text())
     for model, level in cal["chosen_levels"].items():
         name = model.split("/")[1]
-        R = jsonl(RES / "week4_dev_v2" / f"{name}-L{level}.jsonl")
+        R = jsonl(RES / "week4" / "calibration_v2" / f"{name}-L{level}.jsonl")
         rows.append((f"{name.split('-')[1]}  harder dev, level {level}", R))
     fig, ax = plt.subplots(figsize=(8, 3.6))
     for i, (label, R) in enumerate(rows[::-1]):
