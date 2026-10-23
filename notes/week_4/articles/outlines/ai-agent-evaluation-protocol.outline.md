@@ -127,7 +127,7 @@ Recommended: **1** for the article and **6** for Substack and social. SEO title 
 - https://arxiv.org/abs/2407.01502 : cost-aware evaluation, holdouts by generality level, HumanEval baselines (Warming 93.2% at $2.45 vs LATS 88.0% at $134.50).
 - https://arxiv.org/abs/2510.11977 : HAL harness and its findings.
 - https://arxiv.org/abs/2507.02825 : agentic benchmark checklist.
-- Own data: `notes/week_4/eval_protocol.md`, `results/week4/power_table.json`.
+- Own data: `protocol/week4_eval_protocol_v1.3.md`, `results/week4/power_table.json`.
 
 ## Repurposing plan
 - Newsletter hook: "LATS scored 88% for $134.50. A retry loop scored 93% for $2.45. Here's how to design evaluations that notice."

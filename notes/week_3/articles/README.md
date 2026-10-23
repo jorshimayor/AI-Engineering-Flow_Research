@@ -1,26 +1,13 @@
-# Week 3 Articles: Plan
+# Week 3 Articles
 
-## How many: 2 articles
-
-Week 3 produced **an artefact** (the agent) and **an evaluation** (120 runs with failure analysis). These are naturally two articles:
-
-| # | Working title | Core question | Outline |
+| # | Article | Covers | Outline |
 |---|---|---|---|
-| 1 | **Build a ReAct Agent From Scratch: ~100 Lines, No Framework** | What *is* an agent, mechanically? | [01-build-react-from-scratch.md](01-build-react-from-scratch.md) |
-| 2 | **My Agent Got the Math Right and the Answer Wrong** | What do reasoning and tools actually each contribute, and how do agents fail? | [02-what-tools-and-thoughts-buy-you.md](02-what-tools-and-thoughts-buy-you.md) |
+| 1 | Build a ReAct Agent From Scratch (~100 Lines) | The loop, the safe tool, stop sequences, what frameworks add; the paper | [01-build-react-from-scratch.md](01-build-react-from-scratch.md) |
+| 2 | My Agent Got the Math Right and the Answer Wrong | What tools and reasoning each contribute, failure modes, cost | [02-what-tools-and-thoughts-buy-you.md](02-what-tools-and-thoughts-buy-you.md) |
 
-Article 1 is the **tutorial**: evergreen, very shareable, good for building credibility. Article 2 is the **research note**: honest, data-driven, and it includes the "ReAct didn't beat Act at 0.5B" result, which most tutorials would leave out. Write 1 first, because Article 2 relies on readers knowing the loop.
+**Order:** 1 then 2.
+**Figures:** [`results/figures/week3_accuracy_by_size.png`](../../../results/figures/week3_accuracy_by_size.png), [`results/figures/week3_cost_vs_accuracy.png`](../../../results/figures/week3_cost_vs_accuracy.png).
+**Hook:** at 1.5B, adding reasoning steps cut accuracy from 97% to 67%.
+**Report honestly:** 30 problems is a pilot; the pre-registered Week 4 test settles ReAct vs Act.
 
-**Optional third (later):** after running the 1.5B / API-model stretch experiment, a short follow-up: *"Same agent, bigger brain: does ReAct start to win?"*
-
-## Figures
-- `results/week3/accuracy_by_mode.png` (Article 2 hero)
-- Trajectory screenshots from the notebook: a success, the "ignored observation" failure, the hallucinated-observation demo
-- **Draw yourself:** a loop diagram (LLM → parse → tool → observation → LLM). This is the hero for Article 1
-
-## Process (same as before)
-Self-check closed-book → stretch experiment → draft (1,200–1,800 words) → verify numbers against `results/week3/runs.jsonl`.
-
-## Newsletter and video hooks
-- **Newsletter hook:** "My agent called the calculator, got the right number, then 'reasoned' its way to the wrong answer."
-- **Video demo:** run `src/react_agent.py` live. Then run it again with `--no-stop` and show the model inventing its own tool result.
+Each outline has self-check questions and one stretch experiment.
