@@ -1,6 +1,6 @@
 # Week 4 Sources: Research Methodology for Applied AI
 
-Sources behind the Week 4 notebook ([`jupyter/week4_rigour_audit.ipynb`](../jupyter/week4_rigour_audit.ipynb)), the statistics helpers ([`src/stats.py`](../src/stats.py)) and the eval protocol. All links checked on 15 October 2026.
+Sources behind the Week 4 notebook ([`jupyter/week4_rigour_audit.ipynb`](../../jupyter/week4_rigour_audit.ipynb)), the statistics helpers ([`src/stats.py`](../../src/stats.py)) and the eval protocol. All links checked on 15 October 2026.
 
 ## Anchor paper
 - Kapoor, Stroebl, Siegel, Nadgir and Narayanan. [AI Agents That Matter](https://arxiv.org/abs/2407.01502). TMLR, 2025. Project site: [agents.cs.princeton.edu](https://agents.cs.princeton.edu/)
