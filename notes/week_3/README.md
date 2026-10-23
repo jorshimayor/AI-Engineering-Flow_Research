@@ -52,5 +52,5 @@ The four modes from the paper differ only in trajectory format: direct answer, r
 
 ## Files
 
-- Raw runs: [`results/week3/`](../../results/week3/) (0.5B), [`results/week3_gpu/`](../../results/week3_gpu/) (1.5B, 3B)
+- Raw runs: [`results/week3/`](../../results/week3/) (one file per model)
 - Reading list: [`resources.md`](resources.md) · Article plans: [`articles/`](articles/README.md)

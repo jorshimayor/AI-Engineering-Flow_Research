@@ -84,7 +84,7 @@ Recommended: **1** for the article and **6** for Substack and social. SEO title 
 - Purpose: measure headroom and variance before sizing or freezing anything.
 - Key points: my pilot reran the Week 3 task at 1.5B and 3B on a free Colab T4. Act-only scored 97% and 100%, a ceiling, so a +10-point gain could never appear. ReAct was 30 points worse at 1.5B (p = 0.012), but all of it came from 2 of 6 templates. Fixes: a harder task (3 to 4 steps, distractors), a difficulty gate (Act-only 40% to 85% on dev), and a leave-one-template-out check. A pilot measures the design, not the effect.
 - Keywords: AI agent evaluation (variation).
-- Visual: `results/week3_gpu/accuracy_by_size.png`. Alt: "AI agent evaluation pilot accuracy by model size and prompting mode".
+- Visual: `results/figures/week3_accuracy_by_size.png`. Alt: "AI agent evaluation pilot accuracy by model size and prompting mode".
 - Links: [the Colab notebook that ran the pilot](https://github.com/jorshimayor/AI-Engineering-Flow_Research)
 
 ### H2: Step 6: Size The Evaluation With A Power Analysis
@@ -127,7 +127,7 @@ Recommended: **1** for the article and **6** for Substack and social. SEO title 
 - https://arxiv.org/abs/2407.01502 : cost-aware evaluation, holdouts by generality level, HumanEval baselines (Warming 93.2% at $2.45 vs LATS 88.0% at $134.50).
 - https://arxiv.org/abs/2510.11977 : HAL harness and its findings.
 - https://arxiv.org/abs/2507.02825 : agentic benchmark checklist.
-- Own data: `protocol/week4_eval_protocol_v1.3.md`, `results/week4/power_table.json`.
+- Own data: `notes/week_4/eval_protocol_v1.3.md`, `results/week4/power_table.json`.
 
 ## Repurposing plan
 - Newsletter hook: "LATS scored 88% for $134.50. A retry loop scored 93% for $2.45. Here's how to design evaluations that notice."

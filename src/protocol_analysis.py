@@ -24,7 +24,7 @@ from run_react_bench import failure_type, is_format_failure
 from stats import discordant, holm, mcnemar_exact, paired_bootstrap_ci, wilson_ci
 
 
-def load_config(path: str | Path = "protocol/week4_frozen_config.json") -> dict:
+def load_config(path: str | Path = "notes/week_4/eval_protocol_config.json") -> dict:
     return json.loads(Path(path).read_text())
 
 
