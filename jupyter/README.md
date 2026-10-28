@@ -24,6 +24,7 @@ Results cache to [`../results/`](../results/README.md), so re-runs only compute 
 | [`week3_colab.ipynb`](week3_colab.ipynb) · [Colab](https://colab.research.google.com/github/jorshimayor/AI-Engineering-Flow_Research/blob/main/jupyter/week3_colab.ipynb) | 30 minutes |
 | [`week4_calibration_colab.ipynb`](week4_calibration_colab.ipynb) · [Colab](https://colab.research.google.com/github/jorshimayor/AI-Engineering-Flow_Research/blob/main/jupyter/week4_calibration_colab.ipynb) | 60 to 90 minutes (done) |
 | [`week4_test_run_colab.ipynb`](week4_test_run_colab.ipynb) · [Colab](https://colab.research.google.com/github/jorshimayor/AI-Engineering-Flow_Research/blob/main/jupyter/week4_test_run_colab.ipynb) | 7.5 hours, resumable |
+| [`week5_prompt_library_colab.ipynb`](week5_prompt_library_colab.ipynb) · [Colab](https://colab.research.google.com/github/jorshimayor/AI-Engineering-Flow_Research/blob/main/jupyter/week5_prompt_library_colab.ipynb) | about 40 minutes |
 
 **Colab:** `Runtime → Change runtime type → T4 GPU`, then `Run all`. Keep Drive on; a disconnect only loses the current problem.
 **Kaggle:** enable GPU and Internet in Settings, set `USE_DRIVE = False`.
