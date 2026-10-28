@@ -44,7 +44,7 @@ def save(fig, name: str) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT / name, dpi=160, bbox_inches="tight")
     plt.close(fig)
-    print("wrote", (OUT / name).relative_to(ROOT))
+    print("wrote", OUT / name)
 
 
 def jsonl(path: Path) -> list[dict]:
@@ -238,8 +238,74 @@ def week4_power() -> None:
     save(fig, "week4_power.png")
 
 
+# ------------------------------------------------------------------ week 5
+W5_ORDER = ["zero_shot_direct", "few_shot_direct", "zero_shot_cot", "few_shot_cot", "few_shot_cot_json"]
+W5_LABEL = {"zero_shot_direct": "Zero-shot\ndirect", "few_shot_direct": "Few-shot\ndirect", "zero_shot_cot": "Zero-shot\nCoT",
+            "few_shot_cot": "Few-shot\nCoT", "few_shot_cot_json": "Few-shot\nCoT + JSON"}
+W5_MODELS = [("Qwen2.5-0.5B-Instruct", GREY), ("Qwen2.5-1.5B-Instruct", INK)]
+
+
+def week5_runs() -> dict[str, list[dict]]:
+    return {m: jsonl(RES / "week5" / f"{m}.jsonl") for m, _ in W5_MODELS if (RES / "week5" / f"{m}.jsonl").exists()}
+
+
+def week5_strategy_accuracy() -> None:
+    data = week5_runs()
+    if not data:
+        print("skip week5_strategy_accuracy: no results/week5 yet"); return
+    fig, ax = plt.subplots(figsize=(9, 4.4))
+    w = 0.36
+    for j, (m, col) in enumerate(W5_MODELS):
+        if m not in data:
+            continue
+        for i, s in enumerate(W5_ORDER):
+            rs = [r for r in data[m] if r["strategy"] == s]
+            if not rs:
+                continue
+            k, n = sum(r["correct"] for r in rs), len(rs)
+            lo, hi = wilson_ci(k, n)
+            lenient = sum(r["correct_lenient"] for r in rs) / n * 100
+            x = i + (j - 0.5) * w
+            ax.bar(x, k / n * 100, w, color=col, edgecolor=SURFACE, linewidth=2, label=m.replace("-Instruct", "") if i == 0 else None)
+            ax.plot([x, x], [lo * 100, hi * 100], color=INK2, linewidth=1)
+            if lenient - k / n * 100 >= 1:
+                ax.plot(x, lenient, marker="_", markersize=14, color=BLUE, markeredgewidth=2.5,
+                        label="Lenient (any number format)" if i == W5_ORDER.index("few_shot_cot_json") and j == 1 else None)
+            ax.text(x, max(k / n * 100, lenient) + 3, f"{k / n:.0%}", ha="center", fontsize=8.5, color=INK)
+    ax.set_xticks(range(len(W5_ORDER))); ax.set_xticklabels([W5_LABEL[s] for s in W5_ORDER])
+    ax.set_ylim(0, 105); ax.set_ylabel("GSM8K accuracy, strict format (%)"); ax.grid(axis="x", visible=False)
+    ax.legend(loc="upper left", fontsize=9)
+    ax.set_title("Week 5: chain-of-thought prompting on 400 GSM8K problems")
+    ax.text(0, -0.2, "Thin lines: 95% Wilson intervals. Blue ticks: accuracy if any final number counts, showing format failures.",
+            transform=ax.transAxes, fontsize=8, color=INK2)
+    save(fig, "week5_strategy_accuracy.png")
+
+
+def week5_cost_vs_accuracy() -> None:
+    data = week5_runs()
+    if not data:
+        print("skip week5_cost_vs_accuracy: no results/week5 yet"); return
+    markers = {"Qwen2.5-0.5B-Instruct": "o", "Qwen2.5-1.5B-Instruct": "s"}
+    fig, ax = plt.subplots(figsize=(8, 4.4))
+    for m, col in W5_MODELS:
+        for s in W5_ORDER:
+            rs = [r for r in data.get(m, []) if r["strategy"] == s]
+            if not rs:
+                continue
+            tok = np.mean([r["tokens_in"] + r["tokens_out"] for r in rs]); acc = np.mean([r["correct"] for r in rs]) * 100
+            ax.scatter(tok, acc, s=70, marker=markers[m], color=col, edgecolor=SURFACE, linewidth=1.5, zorder=3)
+            ax.annotate(W5_LABEL[s].replace("\n", " "), (tok, acc), textcoords="offset points", xytext=(7, -3), fontsize=7.5, color=INK2)
+    for m, col in W5_MODELS:
+        ax.scatter([], [], marker=markers[m], color=col, label=m.replace("-Instruct", ""), s=50)
+    ax.set_xlabel("Tokens per problem, prompt + answer (cost)"); ax.set_ylabel("Accuracy, strict (%)")
+    ax.set_ylim(-5, 105); ax.legend(fontsize=9, loc="upper left")
+    ax.set_title("Week 5: what each prompting strategy costs")
+    save(fig, "week5_cost_vs_accuracy.png")
+
+
 FIGURES = [week1_token_tax, week2_what_moves_accuracy, week3_accuracy_by_size, week3_cost_vs_accuracy,
-           week4_claim_audit, week4_difficulty_calibration, week4_react_minus_act, week4_power]
+           week4_claim_audit, week4_difficulty_calibration, week4_react_minus_act, week4_power,
+           week5_strategy_accuracy, week5_cost_vs_accuracy]
 
 if __name__ == "__main__":
     for f in FIGURES:

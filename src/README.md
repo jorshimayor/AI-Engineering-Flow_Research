@@ -9,6 +9,9 @@
 | [`run_react_bench.py`](run_react_bench.py) | 3, 4 | Resumable benchmark runner and summaries, CLI |
 | [`stats.py`](stats.py) | 4 | Wilson CI, paired bootstrap, exact McNemar, sign-flip, Fisher, Holm, power |
 | [`protocol_analysis.py`](protocol_analysis.py) | 4 | Pre-registered analysis for the test run |
+| [`gsm8k.py`](gsm8k.py) | 5 | GSM8K download, fixed 400-problem test sample, train-split dev set |
+| [`prompts.py`](prompts.py) | 5 | Prompt library: 5 strategies, worked examples, strict and lenient parsers |
+| [`run_prompt_bench.py`](run_prompt_bench.py) | 5 | Batched, resumable GSM8K runner and paired summaries, CLI |
 | [`figures.py`](figures.py) | all | Rebuilds `results/figures/` from saved results |
 
 ## CLI
@@ -18,6 +21,7 @@ uv run python src/react_agent.py "A truck carries 1,284 boxes with 36 cans each.
 uv run python src/run_react_bench.py --model Qwen/Qwen2.5-1.5B-Instruct          # Week 3 benchmark
 uv run python src/run_react_bench.py --task dev --level 2 --max-steps 8          # Week 4 dev split
 uv run python src/run_react_bench.py --summary results/week3/*.jsonl             # accuracy, CIs, cost
+uv run python src/run_prompt_bench.py --model Qwen/Qwen2.5-1.5B-Instruct        # Week 5 prompt library (GPU)
 uv run python src/figures.py                                                     # rebuild figures
 ```
 
