@@ -24,6 +24,7 @@ Notebooks, code, raw results and notes from a 48-week applied AI engineering fel
 | [`jupyter/`](jupyter/README.md) | Notebooks (local and Colab) |
 | [`src/`](src/README.md) | Code the notebooks import, plus CLIs |
 | [`results/`](results/README.md) | Raw results and figures, one folder per week |
+| [`submissions/`](submissions/README.md) | What I submit to the fellowship each week, with a self-review |
 
 ## Quick start
 
