@@ -6,6 +6,8 @@ Rebuild a folder from the main repo after changing the source files, then copy i
 
 ## Status
 
+PR descriptions for the fellowship repo, ready to paste: [`pr/`](pr/).
+
 | Week | Task | Files | PR |
 |---|---|---|---|
 | [1](week1/) | Probe tokeniser edge cases and next-token distributions | Notebook, README, figure | Not opened |
