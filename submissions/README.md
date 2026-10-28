@@ -14,7 +14,7 @@ PR descriptions for the fellowship repo, ready to paste: [`pr/`](pr/).
 | [2](week2/) | Vary few-shot count, order and format on a fixed task | Notebook, `src/icl.py`, README, figure | Not opened |
 | [3](week3/) | Hand-build a single-tool ReAct loop | 2 notebooks, `src/react_agent.py`, `week3_results.json`, README, figures | Not opened |
 | [4](week4/) | Eval protocol on paper ([brief](https://github.com/Flow-Research/applied-ai-engineering-labs-26/blob/research/Week4/Week4_Brief_Eval_Protocol.md)) | `protocol.md`, `lesson_memo.md`, `results_original.json` | Not opened |
-| 5 | Prompt library, 3+ strategies with documented deltas | Pending the Colab run | Not opened |
+| [5](week5/) | Prompt library, 3+ strategies with documented deltas | Notebook, `src/` (library, data, runner, stats), 2 result files, README, figures | Not opened |
 
 ## Self-review
 
@@ -59,3 +59,13 @@ PR descriptions for the fellowship repo, ready to paste: [`pr/`](pr/).
 | Gap: shared code | No | Pilot used my own Week 3 agent; say so in the PR |
 | Gap: peer review (step 4) | To do | Comment on a peer's protocol PR |
 | Gap: talk (5 minutes) | To do | Claim and pilot, biggest flaw, protocol, what would change my mind |
+
+### Week 5
+
+| Check | Met? | Evidence or gap |
+|---|---|---|
+| Prompt library for a fixed task | Yes | `prompts.py`: 5 strategies, each a template plus a parser |
+| Three or more strategies compared | Yes | 5 strategies × 2 models × the same 400 GSM8K problems |
+| Documented deltas | Yes | Paired differences vs baseline with bootstrap CIs, McNemar, Holm |
+| Hypotheses fixed before the run | Yes | H1 supported at both sizes; H2 fails at 0.5B, inconclusive at 1.5B |
+| Gap | | One model family; H2 at 1.5B needs about 1,010 problems; no Week 5 brief yet, so file names may need renaming |

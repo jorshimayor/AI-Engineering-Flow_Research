@@ -271,7 +271,9 @@ def week5_strategy_accuracy() -> None:
             if lenient - k / n * 100 >= 1:
                 ax.plot(x, lenient, marker="_", markersize=14, color=BLUE, markeredgewidth=2.5,
                         label="Lenient (any number format)" if i == W5_ORDER.index("few_shot_cot_json") and j == 1 else None)
-            ax.text(x, max(k / n * 100, lenient) + 3, f"{k / n:.0%}", ha="center", fontsize=8.5, color=INK)
+            ax.text(x, hi * 100 + 1.5, f"{k / n:.0%}", ha="center", fontsize=8.5, color=INK)
+            if lenient - k / n * 100 >= 5:   # label the big format gaps
+                ax.text(x, lenient + 1.5, f"{lenient:.0f}%", ha="center", fontsize=7.5, color=BLUE)
     ax.set_xticks(range(len(W5_ORDER))); ax.set_xticklabels([W5_LABEL[s] for s in W5_ORDER])
     ax.set_ylim(0, 105); ax.set_ylabel("GSM8K accuracy, strict format (%)"); ax.grid(axis="x", visible=False)
     ax.legend(loc="upper left", fontsize=9)
@@ -287,14 +289,18 @@ def week5_cost_vs_accuracy() -> None:
         print("skip week5_cost_vs_accuracy: no results/week5 yet"); return
     markers = {"Qwen2.5-0.5B-Instruct": "o", "Qwen2.5-1.5B-Instruct": "s"}
     fig, ax = plt.subplots(figsize=(8, 4.4))
-    for m, col in W5_MODELS:
-        for s in W5_ORDER:
+    for s in W5_ORDER:
+        pts = []
+        for m, col in W5_MODELS:
             rs = [r for r in data.get(m, []) if r["strategy"] == s]
             if not rs:
                 continue
             tok = np.mean([r["tokens_in"] + r["tokens_out"] for r in rs]); acc = np.mean([r["correct"] for r in rs]) * 100
             ax.scatter(tok, acc, s=70, marker=markers[m], color=col, edgecolor=SURFACE, linewidth=1.5, zorder=3)
-            ax.annotate(W5_LABEL[s].replace("\n", " "), (tok, acc), textcoords="offset points", xytext=(7, -3), fontsize=7.5, color=INK2)
+            pts.append((tok, acc))
+        if pts:   # join the two sizes of one strategy and label it once, beside the larger model
+            ax.plot(*zip(*pts), color=INK2, linewidth=0.8, alpha=0.5, zorder=2)
+            ax.annotate(W5_LABEL[s].replace("\n", " "), pts[-1], textcoords="offset points", xytext=(7, 3), fontsize=7.5, color=INK2)
     for m, col in W5_MODELS:
         ax.scatter([], [], marker=markers[m], color=col, label=m.replace("-Instruct", ""), s=50)
     ax.set_xlabel("Tokens per problem, prompt + answer (cost)"); ax.set_ylabel("Accuracy, strict (%)")
