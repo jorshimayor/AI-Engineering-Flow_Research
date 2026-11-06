@@ -34,8 +34,9 @@ class BatchLLM:
             self.tok.pad_token = self.tok.eos_token
         self.model = AutoModelForCausalLM.from_pretrained(name, torch_dtype=dtype).to(self.device).eval()
 
-    def generate(self, conversations: list[list[dict]], max_new_tokens: int) -> list[tuple[str, int, int]]:
-        texts = [self.tok.apply_chat_template(c, tokenize=False, add_generation_prompt=True) for c in conversations]
+    def generate(self, conversations: list[list[dict]], max_new_tokens: int,
+                 tools: list[dict] | None = None) -> list[tuple[str, int, int]]:
+        texts = [self.tok.apply_chat_template(c, tools=tools, tokenize=False, add_generation_prompt=True) for c in conversations]
         enc = self.tok(texts, return_tensors="pt", padding=True).to(self.device)
         with self.torch.no_grad():
             out = self.model.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False,
