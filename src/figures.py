@@ -338,7 +338,7 @@ def week6_success_by_route() -> None:
             x = i + (j - 1) * w
             ax.bar(x, k / n * 100, w, color=col, edgecolor=SURFACE, linewidth=2, label=label if i == 0 else None)
             ax.plot([x, x], [lo * 100, hi * 100], color=INK2, linewidth=1)
-            ax.text(x, hi * 100 + 1.5, f"{k / n:.0%}", ha="center", fontsize=8.5, color=INK)
+            ax.text(x, hi * 100 + 1.5, f"{k / n:.1%}" if k / n < 0.1 else f"{k / n:.0%}", ha="center", fontsize=8.5, color=INK)
     ax.set_xticks(range(len(W6_MODELS))); ax.set_xticklabels([m.replace("-Instruct", "") for m, _ in W6_MODELS])
     ax.set_ylim(0, 112); ax.set_ylabel("Problems solved (%)"); ax.grid(axis="x", visible=False)
     ax.legend(loc="upper left", fontsize=9, ncol=3)
@@ -366,7 +366,7 @@ def week6_malformed_types() -> None:
             ax.text(x, c + 0.5, str(c), ha="center", fontsize=8.5, color=INK)
     ax.set_xticks(range(len(types))); ax.set_xticklabels([W6_TYPES[t] for t in types])
     ax.set_ylabel("Malformed replies (direct route)"); ax.grid(axis="x", visible=False)
-    ax.legend(loc="upper right", fontsize=9)
+    ax.legend(loc="upper left", fontsize=9)
     ax.set_title("Week 6: how replies were malformed")
     save(fig, "week6_malformed_types.png")
 

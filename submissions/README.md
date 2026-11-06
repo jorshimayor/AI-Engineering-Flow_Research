@@ -10,11 +10,12 @@ PR descriptions for the fellowship repo, ready to paste: [`pr/`](pr/).
 
 | Week | Task | Files | PR |
 |---|---|---|---|
-| [1](week1/) | Probe tokeniser edge cases and next-token distributions | Notebook, README, figure | Not opened |
-| [2](week2/) | Vary few-shot count, order and format on a fixed task | Notebook, `src/icl.py`, README, figure | Not opened |
+| [1](week1/) | Probe tokeniser edge cases and next-token distributions | Notebook, README, figure | [Flow-Research/applied-ai-engineering-labs-26#8](https://github.com/Flow-Research/applied-ai-engineering-labs-26/pull/8) |
+| [2](week2/) | Vary few-shot count, order and format on a fixed task | Notebook, `src/icl.py`, README, figure | [Flow-Research/applied-ai-engineering-labs-26#9](https://github.com/Flow-Research/applied-ai-engineering-labs-26/pull/9) |
 | [3](week3/) | Hand-build a single-tool ReAct loop | 2 notebooks, `src/react_agent.py`, `week3_results.json`, README, figures | Not opened |
 | [4](week4/) | Eval protocol on paper ([brief](https://github.com/Flow-Research/applied-ai-engineering-labs-26/blob/research/Week4/Week4_Brief_Eval_Protocol.md)) | `protocol.md`, `lesson_memo.md`, `results_original.json` | Not opened |
 | [5](week5/) | Prompt library, 3+ strategies with documented deltas | Notebook, `src/` (library, data, runner, stats), 2 result files, README, figures | Not opened |
+| [6](week6/) | Two-tool pipeline with validation and repair; same tools behind MCP | Notebook, `src/` (tools, loop, MCP server, runner), tests, 2 result files, README, figures | Not opened |
 
 ## Self-review
 
@@ -69,3 +70,13 @@ PR descriptions for the fellowship repo, ready to paste: [`pr/`](pr/).
 | Documented deltas | Yes | Paired differences vs baseline with bootstrap CIs, McNemar, Holm |
 | Hypotheses fixed before the run | Yes | H1 supported at both sizes; H2 fails at 0.5B, inconclusive at 1.5B |
 | Gap | | One model family; H2 at 1.5B needs about 1,010 problems; no Week 5 brief yet, so file names may need renaming |
+
+### Week 6
+
+| Check | Met? | Evidence or gap |
+|---|---|---|
+| Two-tool calling pipeline | Yes | `lookup_price` and `calculate`, Qwen's native `<tool_call>` format |
+| Schema validation | Yes | Every reply parsed into calls, a schema-checked final answer, or one of four malformed types |
+| Malformed-output handling | Yes | Never executed; up to 3 repairs. +9 points at 3B (H1 supported there) |
+| Same tools behind MCP, integration effort compared | Yes | 26 vs 71 lines; schema, error and latency differences measured; H2 inconclusive at 3B |
+| Gap | | 1.5B at a floor (1.5%), so H1 fails there and H2 is uninformative; the dev check had no success gate. Most failures are calls made before prices are known, which validation can't catch |

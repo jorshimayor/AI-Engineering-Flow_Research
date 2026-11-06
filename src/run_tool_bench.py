@@ -116,10 +116,66 @@ def summary(paths: list[Path]) -> dict:
     for (model, eff, lo, hi, p), ph in zip(h1, holm([r[4] for r in h1])):
         print(f"  H1 {model}: repair - fail-closed {eff * 100:+.1f} pts (95% CI {lo * 100:+.1f} to {hi * 100:+.1f}), Holm p = {ph:.2g}")
         out.setdefault(model, {})["h1"] = dict(effect=eff, lo=lo, hi=hi, p_holm=ph)
+    failures(paths)
     here = Path(__file__).parent
     direct = loc_section(here / "tools.py", "# -- direct route", "# -- parsing")
     print(f"\nIntegration code (non-blank, non-comment lines): direct route = {direct} (hand-written schemas "
           f"+ DirectTools); MCP route = server {loc(here / 'mcp_server.py')} + client {loc(tool_agent.MCPTools)}")
+    return out
+
+
+def _malformed_shape(text: str, mtype: str) -> str:
+    """Finer label for a malformed reply, from its text (exploratory)."""
+    t = text.strip()
+    if t.startswith(">"):
+        return "stray '>' before the JSON"
+    if t.startswith('{"name"'):
+        return "tool call without <tool_call> tags"
+    if '"answer": "' in t:
+        return "answer as a string"
+    if mtype == "json_error" and "lookup_price(" in t:
+        return "lookup_price nested inside calculate"
+    return mtype
+
+
+def failures(paths: list[Path]) -> dict:
+    """Exploratory: where runs went wrong, beyond the malformed-reply counts."""
+    out = {}
+    print("\nExploratory: how runs failed (share of the 200 runs unless stated)")
+    print(f"{'model':22} {'route':7} {'calc in 1st reply':>17} {'lookup err':>11} {'no good calc':>13} "
+          f"{'success | calc ok':>18} {'success | no calc ok':>21} {'same bad reply':>15}")
+    for path in paths:
+        for route, recs in load(path).items():
+            rs = list(recs.values()); n = len(rs)
+            model = rs[0]["model"].split("/")[-1]
+            early = no_calc = lookup_err = repeats = 0
+            ok = [0, 0]; nok = [0, 0]
+            shapes = Counter()
+            for r in rs:
+                first = next(m for m in r["messages"] if m["role"] == "assistant")
+                names = [c["function"]["name"] for c in first.get("tool_calls") or []]
+                early += "calculate" in names and "lookup_price" in names
+                lookup_err += any(m["role"] == "tool" and m["name"] == "lookup_price" and '"error"' in m["content"]
+                                  for m in r["messages"])
+                sums = [json.loads(m["content"])["result"] for m in r["messages"]
+                        if m["role"] == "tool" and m["name"] == "calculate" and '"result"' in m["content"]]
+                if r["status"] == "final" and not sums:
+                    no_calc += 1
+                bucket = ok if sums else nok
+                bucket[0] += 1; bucket[1] += r["correct"]
+                outs = r["malformed_outputs"]
+                repeats += len(outs) > 1 and len(set(outs)) == 1
+                shapes.update(_malformed_shape(o, e["type"]) for o, e in zip(outs, r["malformed"]))
+            row = dict(calc_in_first_reply=early / n, lookup_error=lookup_err / n, final_without_calc=no_calc / n,
+                       n_calc_ok=ok[0], success_calc_ok=ok[1] / max(ok[0], 1),
+                       n_no_calc_ok=nok[0], success_no_calc_ok=nok[1] / max(nok[0], 1), same_bad_reply=repeats / n,
+                       malformed_shapes=dict(shapes))
+            out.setdefault(model, {})[route] = row
+            print(f"{model:22} {route:7} {row['calc_in_first_reply']:17.1%} {row['lookup_error']:11.1%} "
+                  f"{row['final_without_calc']:13.1%} {row['success_calc_ok']:8.1%} of {ok[0]:>3} "
+                  f"{row['success_no_calc_ok']:11.1%} of {nok[0]:>3} "
+                  f"{row['same_bad_reply']:15.1%}")
+            print(f"{'':30} malformed shapes: {dict(shapes.most_common())}")
     return out
 
 
