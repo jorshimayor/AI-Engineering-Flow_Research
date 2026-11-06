@@ -12,6 +12,11 @@
 | [`gsm8k.py`](gsm8k.py) | 5 | GSM8K download, fixed 400-problem test sample, train-split dev set |
 | [`prompts.py`](prompts.py) | 5 | Prompt library: 5 strategies, worked examples, strict and lenient parsers |
 | [`run_prompt_bench.py`](run_prompt_bench.py) | 5 | Batched, resumable GSM8K runner and paired summaries, CLI |
+| [`tool_tasks.py`](tool_tasks.py) | 6 | Shopping problems that need both tools; random price catalogue; dev and test items |
+| [`tools.py`](tools.py) | 6 | The two tools, hand-written schemas, reply parser with four malformed types |
+| [`tool_agent.py`](tool_agent.py) | 6 | Batched tool-calling loop with validation and repair; MCP client |
+| [`mcp_server.py`](mcp_server.py) | 6 | The same tools behind an MCP server (stdio) |
+| [`run_tool_bench.py`](run_tool_bench.py) | 6 | Resumable runner over both routes; H1/H2 analysis and integration line counts, CLI |
 | [`figures.py`](figures.py) | all | Rebuilds `results/figures/` from saved results |
 
 ## CLI
@@ -22,6 +27,7 @@ uv run python src/run_react_bench.py --model Qwen/Qwen2.5-1.5B-Instruct         
 uv run python src/run_react_bench.py --task dev --level 2 --max-steps 8          # Week 4 dev split
 uv run python src/run_react_bench.py --summary results/week3/*.jsonl             # accuracy, CIs, cost
 uv run python src/run_prompt_bench.py --model Qwen/Qwen2.5-1.5B-Instruct        # Week 5 prompt library (GPU)
+uv run python src/run_tool_bench.py --model Qwen/Qwen2.5-1.5B-Instruct        # Week 6 tool calling, direct and MCP (GPU)
 uv run python src/figures.py                                                     # rebuild figures
 ```
 

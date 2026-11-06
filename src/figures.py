@@ -309,9 +309,72 @@ def week5_cost_vs_accuracy() -> None:
     save(fig, "week5_cost_vs_accuracy.png")
 
 
+# ------------------------------------------------------------------ week 6
+W6_MODELS = [("Qwen2.5-1.5B-Instruct", GREY), ("Qwen2.5-3B-Instruct", INK)]
+W6_ARMS = [("direct", "correct_fail_closed", "Direct, fail-closed", GREY),
+           ("direct", "correct", "Direct, with repair", BLUE),
+           ("mcp", "correct", "MCP, with repair", AQUA)]
+W6_TYPES = {"json_error": "Invalid JSON", "unknown_tool": "Unknown tool", "schema_error": "Arguments fail schema",
+            "final_format_error": "Final answer\nnot valid JSON"}
+
+
+def week6_runs() -> dict[str, list[dict]]:
+    return {m: jsonl(RES / "week6" / f"{m}.jsonl") for m, _ in W6_MODELS if (RES / "week6" / f"{m}.jsonl").exists()}
+
+
+def week6_success_by_route() -> None:
+    data = week6_runs()
+    if not data:
+        print("skip week6_success_by_route: no results/week6 yet"); return
+    fig, ax = plt.subplots(figsize=(8, 4.2))
+    w = 0.26
+    for i, (m, _) in enumerate(W6_MODELS):
+        for j, (route, key, label, col) in enumerate(W6_ARMS):
+            rs = [r for r in data.get(m, []) if r["route"] == route]
+            if not rs:
+                continue
+            k, n = sum(r[key] for r in rs), len(rs)
+            lo, hi = wilson_ci(k, n)
+            x = i + (j - 1) * w
+            ax.bar(x, k / n * 100, w, color=col, edgecolor=SURFACE, linewidth=2, label=label if i == 0 else None)
+            ax.plot([x, x], [lo * 100, hi * 100], color=INK2, linewidth=1)
+            ax.text(x, hi * 100 + 1.5, f"{k / n:.0%}", ha="center", fontsize=8.5, color=INK)
+    ax.set_xticks(range(len(W6_MODELS))); ax.set_xticklabels([m.replace("-Instruct", "") for m, _ in W6_MODELS])
+    ax.set_ylim(0, 112); ax.set_ylabel("Problems solved (%)"); ax.grid(axis="x", visible=False)
+    ax.legend(loc="upper left", fontsize=9, ncol=3)
+    ax.set_title("Week 6: two-tool pipeline on 200 shopping problems")
+    ax.text(0, -0.16, "Fail-closed: the same runs, scored as failed at the first malformed reply. Thin lines: 95% Wilson intervals.",
+            transform=ax.transAxes, fontsize=8, color=INK2)
+    save(fig, "week6_success_by_route.png")
+
+
+def week6_malformed_types() -> None:
+    data = week6_runs()
+    if not data:
+        print("skip week6_malformed_types: no results/week6 yet"); return
+    fig, ax = plt.subplots(figsize=(8, 3.8))
+    w = 0.38
+    types = list(W6_TYPES)
+    for j, (m, col) in enumerate(W6_MODELS):
+        rs = [r for r in data.get(m, []) if r["route"] == "direct"]
+        if not rs:
+            continue
+        counts = [sum(e["type"] == t for r in rs for e in r["malformed"]) for t in types]
+        xs = np.arange(len(types)) + (j - 0.5) * w
+        ax.bar(xs, counts, w, color=col, edgecolor=SURFACE, linewidth=2, label=m.replace("-Instruct", ""))
+        for x, c in zip(xs, counts):
+            ax.text(x, c + 0.5, str(c), ha="center", fontsize=8.5, color=INK)
+    ax.set_xticks(range(len(types))); ax.set_xticklabels([W6_TYPES[t] for t in types])
+    ax.set_ylabel("Malformed replies (direct route)"); ax.grid(axis="x", visible=False)
+    ax.legend(loc="upper right", fontsize=9)
+    ax.set_title("Week 6: how replies were malformed")
+    save(fig, "week6_malformed_types.png")
+
+
 FIGURES = [week1_token_tax, week2_what_moves_accuracy, week3_accuracy_by_size, week3_cost_vs_accuracy,
            week4_claim_audit, week4_difficulty_calibration, week4_react_minus_act, week4_power,
-           week5_strategy_accuracy, week5_cost_vs_accuracy]
+           week5_strategy_accuracy, week5_cost_vs_accuracy,
+           week6_success_by_route, week6_malformed_types]
 
 if __name__ == "__main__":
     for f in FIGURES:
