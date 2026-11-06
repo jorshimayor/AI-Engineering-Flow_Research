@@ -9,7 +9,7 @@
 | [`week3/`](week3/) | One file per model (0.5B, 1.5B, 3B): 4 modes × 30 problems each, with trajectories |
 | [`week4/`](week4/) | `claim_audit.json`, `power_table.json`, charts; `calibration_v1/` and `calibration_v2/` (difficulty calibration); `test/` (pre-registered test, once run) |
 | [`week5/`](week5/) | One file per model: 5 strategies × 400 GSM8K problems, with every output |
-| `week6/` | One file per model: 200 shopping problems × 2 routes (direct, MCP), with full transcripts (after the Colab run) |
+| [`week6/`](week6/) | One file per model: 200 shopping problems × 2 routes (direct, MCP), with full transcripts; `dev/` (12-problem setup check) |
 
 ## Agent run format (JSONL, one episode per line)
 
