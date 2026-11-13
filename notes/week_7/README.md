@@ -3,9 +3,9 @@
 **Paper:** [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401) (Lewis et al., 2020)
 **Lab:** build a minimal RAG pipeline over a small document set.
 **Code:** [`src/rag_corpus.py`](../../src/rag_corpus.py) (documents and questions) · [`src/rag.py`](../../src/rag.py) (chunking, BM25, dense embeddings, index, prompts, scoring) · [`src/run_rag_bench.py`](../../src/run_rag_bench.py) (runner and analysis) · [`tests/test_week7.py`](../../tests/test_week7.py)
-**Notebook:** [`week7_rag_colab.ipynb`](../../jupyter/week7_rag_colab.ipynb) · [open in Colab](https://colab.research.google.com/github/jorshimayor/AI-Engineering-Flow_Research/blob/main/jupyter/week7_rag_colab.ipynb) (about 30 minutes on a free T4). It walks through each step with the code, the intermediate output and the figures inline.
+**Notebook:** [`week7_rag_colab.ipynb`](../../jupyter/week7_rag_colab.ipynb) · [open in Colab](https://colab.research.google.com/github/jorshimayor/AI-Engineering-Flow_Research/blob/main/jupyter/week7_rag_colab.ipynb) (about 30 minutes on a free T4). It walks through each step with the code, the intermediate output and the figures inline; the committed copy is the executed Colab run.
 
-**Status:** plan fixed, test run pending.
+**Status:** done. Plan committed before the run; test run on a Colab T4, 13 November 2026.
 
 ## The paper in brief
 
@@ -69,7 +69,76 @@
 
 ## Results
 
-Pending the test run.
+![Accuracy by condition](../../results/figures/week7_accuracy_by_condition.png)
+
+200 test questions, the same questions in every condition. 95% Wilson intervals. "Answer in context" = the chunk holding the answer was among those retrieved.
+
+| Model | Condition | Correct | Said "unknown" | Gave a sibling's value | Answer in context | Prompt tokens |
+|---|---|---|---|---|---|---|
+| 1.5B | Closed-book | 3.0% (1.4 to 6.4) | 23.0% | 10.0% | | 61 |
+| 1.5B | Oracle (gold page) | 100% (98.1 to 100) | 0% | 0% | | 293 |
+| 1.5B | Dense, k = 1 | 76.5% (70.2 to 81.8) | 23.5% | 0% | 76.5% | 161 |
+| 1.5B | **Dense, k = 3 (main)** | **97.5%** (94.3 to 98.9) | 1.5% | 1.0% | 99.0% | 338 |
+| 1.5B | Dense, k = 5 | 96.5% (93.0 to 98.3) | 0.5% | 3.0% | 100% | 513 |
+| 1.5B | Dense, k = 10 | 99.0% (96.4 to 99.7) | 0% | 1.0% | 100% | 955 |
+| 1.5B | BM25, k = 3 | 99.5% (97.2 to 99.9) | 0.5% | 0% | 100% | 338 |
+| 1.5B | Hybrid, k = 3 | 98.5% (95.7 to 99.5) | 0.5% | 1.0% | 100% | 338 |
+| 1.5B | Swapped index, k = 3 | 98.0% (95.0 to 99.2) | 2.0% | 0% | 99.0% | 337 |
+| 3B | Closed-book | 0% (0 to 1.9) | 82.0% | 0% | | 61 |
+| 3B | Oracle (gold page) | 100% (98.1 to 100) | 0% | 0% | | 293 |
+| 3B | Dense, k = 1 | 76.0% (69.6 to 81.4) | 23.5% | 0% | 76.5% | 161 |
+| 3B | **Dense, k = 3 (main)** | **98.5%** (95.7 to 99.5) | 1.0% | 0% | 99.0% | 338 |
+| 3B | Dense, k = 5 | 100% (98.1 to 100) | 0% | 0% | 100% | 513 |
+| 3B | Dense, k = 10 | 100% (98.1 to 100) | 0% | 0% | 100% | 955 |
+| 3B | BM25, k = 3 | 99.5% (97.2 to 99.9) | 0% | 0% | 100% | 338 |
+| 3B | Hybrid, k = 3 | 99.5% (97.2 to 99.9) | 0% | 0% | 100% | 338 |
+| 3B | Swapped index, k = 3 | 99.0% (96.4 to 99.7) | 1.0% | 0% | 99.0% | 337 |
+
+The dev gate passed before the test run: oracle 24 of 24, dense k = 3 23 of 24, closed-book 2 of 24.
+
+### Confirmatory
+
+| | Model | Difference (95% CI) | Discordant pairs | Holm p | Verdict |
+|---|---|---|---|---|---|
+| **H1:** RAG − closed-book | 1.5B | +94.5 (+91.0 to +97.5) | 189 vs 0 | 2.5 × 10⁻⁵⁷ | **Supported** |
+| | 3B | +98.5 (+96.5 to +100.0) | 197 vs 0 | 2.0 × 10⁻⁵⁹ | **Supported** |
+| **H2:** RAG − oracle | 1.5B | −2.5 (−5.0 to −0.5) | 0 vs 5 | | **Inconclusive**: the lower bound sits exactly on −5 |
+| | 3B | −1.5 (−3.5 to 0.0) | 0 vs 3 | | **Equivalent** |
+
+**H1** holds by a wide margin, as expected: the facts are invented, so without retrieval there is nothing to recall. It reproduces Lewis et al.'s first claim in the form that matters for a small model: retrieval turns a question it cannot answer into one it almost always can.
+
+**H2** holds at 3B and misses by the width of a rounding step at 1.5B. The rule asked for the whole interval inside ±5; the bootstrap lower bound came out at exactly −5.0. RAG never got a question right that the oracle missed (0 against 5 and 0 against 3), so retrieval only ever costs accuracy, and it cost 2.5 and 1.5 points. The bigger caveat is the ceiling: the oracle scored 100% on both models, so this task is too easy to show how much a weaker retriever would cost on harder reading.
+
+### Exploratory (no significance claims)
+
+![Accuracy as k grows](../../results/figures/week7_topk.png)
+
+1. **With no documents, the 1.5B model makes things up; the 3B model mostly says it doesn't know.** Closed-book, the 1.5B model gave a value for 154 of 200 questions ("Black", "1957", "Lowther, North Yorkshire, England"). Its 6 correct answers were all "12 months" for a warranty, a common default rather than knowledge. The 3B model said "unknown" for 82% and answered only years and power ratings, none correctly.
+2. **With documents, neither model guessed when the answer was missing.** At k = 1, the retrieved chunk lacked the answer for 47 questions. Both models said "unknown" for all 47 and answered every other question correctly but one. At k = 1, accuracy is retrieval accuracy.
+3. **Those 47 misses are all colour and power-rating questions.** Both facts sit in the middle chunk of each page, together with the weight. Weight questions found that chunk 30 times out of 30; colour questions found it once in 28 and power questions 10 times in 30. For all 47, the top chunk came from the right page, just the wrong part of it. My guess: "What colour is the X *sold* in?" matches the price paragraph ("sells the X at…"), and question wording pulls the retriever towards whichever chunk shares its words. Two of the colour questions still missed at k = 3, which is most of the main pipeline's errors.
+4. **k = 3 is enough.** Accuracy jumps 21 to 23 points from k = 1 to k = 3, then stays within 1.5 points up to k = 10, which costs 2.8 times the prompt tokens and generation time. At 1.5B, k = 5 gave a sibling product's value 6 times (vs 2 at k = 3), each time with the right chunk ranked first: more chunks from the same family, more chances to read the wrong one. The 3B model made no sibling errors at any k.
+5. **Retriever choice barely mattered here.** BM25, hybrid and dense were within 2 points at k = 3 for both models.
+6. **Dense retrieval handled the product codes better than I expected.** The plan expected codes such as "C-200" to favour BM25. In the retrieval-only sweep (64-word chunks), dense put the answer chunk first for 76% of questions against 55% for BM25. BM25 catches up by the top 3 (100% vs 99%). Its weakness is that all three chunks of a page share the code, so it cannot tell which one holds the fact.
+7. **Putting the page title in every chunk helps small chunks most.** At 32 words, the title lifts hit@3 from 50% to 97% (BM25) and from 68% to 92% (dense). At 64 words it lifts dense hit@1 from 76% to 90%. At 128 words it lowered dense hit@3 from 98% to 92%, a result I can't yet explain. Whole pages were found every time, but with only 60 pages that is no surprise.
+8. **The index swap worked (Lewis et al.'s second claim).** With edition 2 in the index, both models gave the new values (98.0% and 99.0%) and never the old ones. The swap is easy by construction: the wording stays the same and the model has no prior for invented facts to fight.
+9. **The remaining main-pipeline errors** (5 at 1.5B, 3 at 3B): 4 colour questions whose middle chunk was not retrieved; 2 sibling values at 1.5B (a town, a weight) with the right chunk first; one "unknown" at 1.5B when the answer chunk was third; one misread price at 3B ("€2,099" answered as €2999).
+
+![Retrieval sweep](../../results/figures/week7_retrieval_sweep.png)
+
+![Where wrong answers come from](../../results/figures/week7_failures.png)
+
+### Caveats
+
+- The task sits at a ceiling: the oracle scored 100% on both models, so the reader was never the bottleneck. Templated pages and exact product names make the questions easier than real ones.
+- H2 at 1.5B fails on the strict reading of the rule, at the boundary. A larger test set would settle it; at these error rates, 400 questions would give an interval about ±2 points wide.
+- One embedding model, one model family, greedy decoding, 200 questions, one document type.
+
+### What would make Week 8's eval set harder
+
+- Questions that misspell or paraphrase product names ("the Corvane two-hundred", "the C200").
+- Questions that need two facts from different chunks ("which is heavier, the C-200 or the C-300?").
+- Pages that disagree (old and new editions in one index), so the model has to pick the right one.
+- Real documents with uneven structure.
 
 ## Files
 
@@ -79,5 +148,7 @@ Pending the test run.
 | [`src/rag.py`](../../src/rag.py) | Chunking, BM25, dense embedder, index, prompts, answer scoring |
 | [`src/run_rag_bench.py`](../../src/run_rag_bench.py) | Runs every condition, the retrieval sweep, and the analysis |
 | [`tests/test_week7.py`](../../tests/test_week7.py) | Model-free checks, including a full run with a fake model |
-| [`jupyter/week7_rag_colab.ipynb`](../../jupyter/week7_rag_colab.ipynb) | The Colab walkthrough and run |
+| [`jupyter/week7_rag_colab.ipynb`](../../jupyter/week7_rag_colab.ipynb) | The Colab walkthrough, executed on the test run |
+| [`results/week7/`](../../results/week7/) | 3,600 answers (2 models × 9 conditions × 200), retrieval sweep, dev gate |
+| [`articles/`](articles/README.md) | Article plans |
 | [`resources.md`](resources.md) | Reading list |

@@ -16,6 +16,7 @@ PR descriptions for the fellowship repo, ready to paste: [`pr/`](pr/).
 | [4](week4/) | Eval protocol on paper ([brief](https://github.com/Flow-Research/applied-ai-engineering-labs-26/blob/research/Week4/Week4_Brief_Eval_Protocol.md)) | `protocol.md`, `lesson_memo.md`, `results_original.json` | Not opened |
 | [5](week5/) | Prompt library, 3+ strategies with documented deltas | Notebook, `src/` (library, data, runner, stats), 2 result files, README, figures | Not opened |
 | [6](week6/) | Two-tool pipeline with validation and repair; same tools behind MCP | Notebook, `src/` (tools, loop, MCP server, runner), tests, 2 result files, README, figures | Not opened |
+| [7](week7/) | Minimal RAG pipeline over a small document set | Notebook (executed), `src/` (corpus, pipeline, runner), tests, 2 result files, retrieval sweep, README, figures | Not opened |
 
 ## Self-review
 
@@ -80,3 +81,12 @@ PR descriptions for the fellowship repo, ready to paste: [`pr/`](pr/).
 | Malformed-output handling | Yes | Never executed; up to 3 repairs. +9 points at 3B (H1 supported there) |
 | Same tools behind MCP, integration effort compared | Yes | 26 vs 71 lines; schema, error and latency differences measured; H2 inconclusive at 3B |
 | Gap | | 1.5B at a floor (1.5%), so H1 fails there and H2 is uninformative; the dev check had no success gate. Most failures are calls made before prices are known, which validation can't catch |
+
+### Week 7
+
+| Check | Met? | Evidence or gap |
+|---|---|---|
+| Minimal RAG pipeline | Yes | Chunking, BM25, dense and hybrid retrieval, prompt, scoring; all written from scratch except the embedding model |
+| Small document set | Yes | 60 fictional product pages, so closed-book is a true zero |
+| Measured against baselines | Yes | Closed-book and oracle; H1 supported at both sizes; H2 equivalent at 3B, inconclusive at 1.5B (on the boundary) |
+| Gap | | Oracle at 100%, so the task is at a ceiling; templated pages; one embedding model |
