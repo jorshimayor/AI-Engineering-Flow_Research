@@ -2,7 +2,7 @@
 
 Notebooks, code, raw results and notes from a 48-week applied AI engineering fellowship. Everything runs on a laptop or a free cloud GPU.
 
-**Status:** Weeks 1 to 6 done. Week 4's pre-registered test run is pending.
+**Status:** Weeks 1 to 6 done; Week 7 plan fixed, test run pending. Week 4's pre-registered test run is pending.
 
 ![Week 3 accuracy by model size](results/figures/week3_accuracy_by_size.png)
 
@@ -16,6 +16,7 @@ Notebooks, code, raw results and notes from a 48-week applied AI engineering fel
 | 4 | Research methodology | 8 of 15 earlier claims survive proper statistics; ReAct vs Act test frozen at 480 problems per model | [notes](notes/week_4/README.md) |
 | 5 | Prompt engineering | Few-shot chain-of-thought adds 28 points at 0.5B and 48 at 1.5B; asking for JSON costs 19 points at 0.5B | [notes](notes/week_5/README.md) |
 | 6 | Tool calling and MCP | Repairing malformed replies adds 9 points at 3B; MCP is level before repair and 6 points behind after (inconclusive); most failures are calls made before the prices are known | [notes](notes/week_6/README.md) |
+| 7 | Retrieval-augmented generation | Plan fixed: closed-book vs BM25, dense and hybrid retrieval vs an oracle, plus an index swap, on 60 fictional product pages. Test run pending | [notes](notes/week_7/README.md) |
 
 ## Layout
 
@@ -24,7 +25,7 @@ Notebooks, code, raw results and notes from a 48-week applied AI engineering fel
 | [`notes/`](notes/README.md) | Weekly write-ups, reading lists, article plans |
 | [`jupyter/`](jupyter/README.md) | Notebooks (local and Colab) |
 | [`src/`](src/README.md) | Code the notebooks import, plus CLIs |
-| [`tests/`](tests/) | Checks that need no model (`uv run python tests/test_week6.py`) |
+| [`tests/`](tests/) | Checks that need no model (`uv run python tests/test_week6.py`, `tests/test_week7.py`) |
 | [`results/`](results/README.md) | Raw results and figures, one folder per week |
 | [`submissions/`](submissions/README.md) | What I submit to the fellowship each week, with a self-review |
 
