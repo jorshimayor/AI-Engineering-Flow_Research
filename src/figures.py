@@ -371,10 +371,124 @@ def week6_malformed_types() -> None:
     save(fig, "week6_malformed_types.png")
 
 
+# ------------------------------------------------------------------ week 7
+W7_MODELS = [("Qwen2.5-1.5B-Instruct", GREY), ("Qwen2.5-3B-Instruct", INK)]
+W7_CONDS = [("closed", "Closed-book"), ("bm25_k3", "BM25, k=3"), ("dense_k3", "Dense, k=3\n(main)"),
+            ("hybrid_k3", "Hybrid, k=3"), ("oracle", "Oracle\n(gold doc only)"), ("swap_dense_k3", "Dense, k=3,\nswapped index")]
+
+
+def week7_runs() -> dict[str, list[dict]]:
+    return {m: jsonl(RES / "week7" / f"{m}.jsonl") for m, _ in W7_MODELS if (RES / "week7" / f"{m}.jsonl").exists()}
+
+
+def _acc(rs: list[dict], cond: str):
+    xs = [r for r in rs if r["condition"] == cond]
+    return (sum(r["correct"] for r in xs), len(xs)) if xs else (0, 0)
+
+
+def week7_accuracy_by_condition() -> None:
+    data = week7_runs()
+    if not data:
+        print("skip week7_accuracy_by_condition: no results/week7 yet"); return
+    fig, ax = plt.subplots(figsize=(9, 4.2))
+    w = 0.38
+    for j, (m, col) in enumerate(W7_MODELS):
+        for i, (cond, _) in enumerate(W7_CONDS):
+            k, n = _acc(data.get(m, []), cond)
+            if not n:
+                continue
+            lo, hi = wilson_ci(k, n)
+            x = i + (j - 0.5) * w
+            ax.bar(x, k / n * 100, w, color=col, edgecolor=SURFACE, linewidth=2, label=m.replace("-Instruct", "") if i == 0 else None)
+            ax.plot([x, x], [lo * 100, hi * 100], color=INK2, linewidth=1)
+            ax.text(x, hi * 100 + 1.5, f"{k / n:.0%}", ha="center", fontsize=8.5, color=INK)
+    ax.set_xticks(range(len(W7_CONDS))); ax.set_xticklabels([lab for _, lab in W7_CONDS], fontsize=8.5)
+    ax.set_ylim(0, 112); ax.set_ylabel("Questions answered correctly (%)"); ax.grid(axis="x", visible=False)
+    ax.legend(loc="upper left", fontsize=9)
+    ax.set_title("Week 7: answering from retrieved documents, 200 questions")
+    ax.text(0, -0.2, "Thin lines: 95% Wilson intervals. Swapped index: the same questions over the edited edition-2 documents.",
+            transform=ax.transAxes, fontsize=8, color=INK2)
+    save(fig, "week7_accuracy_by_condition.png")
+
+
+def week7_topk() -> None:
+    data = week7_runs()
+    if not data:
+        print("skip week7_topk: no results/week7 yet"); return
+    ks = [1, 3, 5, 10]
+    fig, ax = plt.subplots(figsize=(7, 4))
+    for m, col in W7_MODELS:
+        rs = data.get(m, [])
+        pts = [(k, *_acc(rs, f"dense_k{k}")) for k in ks]
+        pts = [(k, c / n * 100) for k, c, n in pts if n]
+        if pts:
+            ax.plot(*zip(*pts), marker="o", color=col, label=f"{m.replace('-Instruct', '')}: correct")
+    rs = next(iter(data.values()))
+    hit = [(k, np.mean([r["gold_rank"] is not None for r in rs if r["condition"] == f"dense_k{k}"]) * 100) for k in ks
+           if any(r["condition"] == f"dense_k{k}" for r in rs)]
+    if hit:
+        ax.plot(*zip(*hit), marker="s", color=BLUE, linestyle="--", label="Answer chunk retrieved")
+    ax.set_xticks(ks); ax.set_xlabel("Chunks put in the prompt (k), dense retrieval"); ax.set_ylabel("%")
+    ax.set_ylim(0, 105); ax.legend(fontsize=9, loc="lower right")
+    ax.set_title("Week 7: more chunks, more recall, more distractors")
+    save(fig, "week7_topk.png")
+
+
+def week7_retrieval_sweep() -> None:
+    path = RES / "week7" / "retrieval.json"
+    if not path.exists():
+        print("skip week7_retrieval_sweep: no results/week7/retrieval.json yet"); return
+    rows = json.loads(path.read_text())["rows"]
+    sizes = list(dict.fromkeys(str(r["chunk_words"]) for r in rows))
+    fig, ax = plt.subplots(figsize=(7.5, 4))
+    for method, col in (("bm25", ORANGE), ("dense", BLUE), ("hybrid", AQUA)):
+        for header, ls in ((False, "-"), (True, ":")):
+            ys = [next((r["hit@3"] * 100 for r in rows if str(r["chunk_words"]) == s and r["method"] == method
+                        and r["header"] == header), None) for s in sizes]
+            if any(y is not None for y in ys):
+                ax.plot(sizes, ys, marker="o", color=col, linestyle=ls,
+                        label=f"{method}{', title in every chunk' if header else ''}")
+    ax.set_xlabel("Chunk size (words)"); ax.set_ylabel("Answer chunk in the top 3 (%)")
+    ax.set_ylim(0, 105); ax.legend(fontsize=8.5, loc="lower right")
+    ax.set_title("Week 7: retrieval only, by chunk size and method")
+    save(fig, "week7_retrieval_sweep.png")
+
+
+def week7_failures() -> None:
+    data = week7_runs()
+    if not data:
+        print("skip week7_failures: no results/week7 yet"); return
+    parts = [("Correct", AQUA), ("Answer retrieved, gave a sibling's value", ORANGE),
+             ("Answer retrieved, said unknown", GREY), ("Answer retrieved, other wrong", INK2),
+             ("Answer not retrieved", BLUE)]
+    fig, ax = plt.subplots(figsize=(8.5, 2.8))
+    for i, (m, _) in enumerate(W7_MODELS):
+        rs = [r for r in data.get(m, []) if r["condition"] == "dense_k3"]
+        if not rs:
+            continue
+        wrong = [r for r in rs if r["gold_rank"] is not None and not r["correct"]]
+        counts = [sum(r["correct"] for r in rs),
+                  sum(r["sibling"] for r in wrong), sum(r["abstained"] for r in wrong),
+                  sum(not r["sibling"] and not r["abstained"] for r in wrong),
+                  sum(not r["correct"] for r in rs if r["gold_rank"] is None)]
+        left = 0
+        for (lab, col), c in zip(parts, counts):
+            ax.barh(i, c, left=left, color=col, edgecolor=SURFACE, label=lab if i == 0 else None)
+            if c >= 8:
+                ax.text(left + c / 2, i, str(c), ha="center", va="center", fontsize=8.5, color=SURFACE)
+            left += c
+    ax.set_yticks(range(len(W7_MODELS))); ax.set_yticklabels([m.replace("-Instruct", "") for m, _ in W7_MODELS])
+    ax.set_xlabel("Questions (dense retrieval, k=3)"); ax.grid(axis="y", visible=False)
+    ax.legend(fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.35), ncol=3)
+    ax.set_title("Week 7: where wrong answers come from")
+    save(fig, "week7_failures.png")
+
+
 FIGURES = [week1_token_tax, week2_what_moves_accuracy, week3_accuracy_by_size, week3_cost_vs_accuracy,
            week4_claim_audit, week4_difficulty_calibration, week4_react_minus_act, week4_power,
            week5_strategy_accuracy, week5_cost_vs_accuracy,
-           week6_success_by_route, week6_malformed_types]
+           week6_success_by_route, week6_malformed_types,
+           week7_accuracy_by_condition, week7_topk, week7_retrieval_sweep, week7_failures]
 
 if __name__ == "__main__":
     for f in FIGURES:

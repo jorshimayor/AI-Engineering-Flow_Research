@@ -17,6 +17,9 @@
 | [`tool_agent.py`](tool_agent.py) | 6 | Batched tool-calling loop with validation and repair; MCP client |
 | [`mcp_server.py`](mcp_server.py) | 6 | The same tools behind an MCP server (stdio) |
 | [`run_tool_bench.py`](run_tool_bench.py) | 6 | Resumable runner over both routes; H1/H2 analysis and integration line counts, CLI |
+| [`rag_corpus.py`](rag_corpus.py) | 7 | 60 fictional product pages (two editions) and questions with exact answers; dev and test brands |
+| [`rag.py`](rag.py) | 7 | Chunking, BM25, dense embedder (bge-small), hybrid fusion, index, prompts, answer scoring |
+| [`run_rag_bench.py`](run_rag_bench.py) | 7 | Resumable runner over 9 retrieval conditions; retrieval-only sweep; H1/H2 analysis and failure breakdown, CLI |
 | [`figures.py`](figures.py) | all | Rebuilds `results/figures/` from saved results |
 
 ## CLI
@@ -28,6 +31,7 @@ uv run python src/run_react_bench.py --task dev --level 2 --max-steps 8         
 uv run python src/run_react_bench.py --summary results/week3/*.jsonl             # accuracy, CIs, cost
 uv run python src/run_prompt_bench.py --model Qwen/Qwen2.5-1.5B-Instruct        # Week 5 prompt library (GPU)
 uv run python src/run_tool_bench.py --model Qwen/Qwen2.5-1.5B-Instruct        # Week 6 tool calling, direct and MCP (GPU)
+uv run python src/run_rag_bench.py --model Qwen/Qwen2.5-1.5B-Instruct         # Week 7 RAG, all conditions (GPU)
 uv run python src/figures.py                                                     # rebuild figures
 ```
 
