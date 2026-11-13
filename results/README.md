@@ -10,7 +10,7 @@
 | [`week4/`](week4/) | `claim_audit.json`, `power_table.json`, charts; `calibration_v1/` and `calibration_v2/` (difficulty calibration); `test/` (pre-registered test, once run) |
 | [`week5/`](week5/) | One file per model: 5 strategies × 400 GSM8K problems, with every output |
 | [`week6/`](week6/) | One file per model: 200 shopping problems × 2 routes (direct, MCP), with full transcripts; `dev/` (12-problem setup check) |
-| `week7/` | Pending: one file per model, 200 questions × 9 retrieval conditions, with retrieved chunk ids; `retrieval.json` (retrieval-only sweep); `dev/` (24-question gate) |
+| [`week7/`](week7/) | One file per model: 200 questions × 9 retrieval conditions, with outputs and retrieved chunk ids; `retrieval.json` (retrieval-only sweep); `dev/` (24-question gate) |
 
 ## Agent run format (JSONL, one episode per line)
 
