@@ -20,6 +20,9 @@
 | [`rag_corpus.py`](rag_corpus.py) | 7 | 60 fictional product pages (two editions) and questions with exact answers; dev and test brands |
 | [`rag.py`](rag.py) | 7 | Chunking, BM25, dense embedder (bge-small), hybrid fusion, index, prompts, answer scoring |
 | [`run_rag_bench.py`](run_rag_bench.py) | 7 | Resumable runner over 9 retrieval conditions; retrieval-only sweep; H1/H2 analysis and failure breakdown, CLI |
+| [`eval_cases.py`](eval_cases.py) | 8 | 45 hand-written cases (15 per system for Weeks 5 to 7) with their checks, and my predictions |
+| [`run_evals.py`](run_evals.py) | 8 | Runs each case 6 times, applies the checks, a model judge, the scorecard and a regression compare, CLI |
+| [`notes_view.py`](notes_view.py) | all | Renders a week's results section from its notes inside a notebook, figures included |
 | [`figures.py`](figures.py) | all | Rebuilds `results/figures/` from saved results |
 
 ## CLI
@@ -32,6 +35,7 @@ uv run python src/run_react_bench.py --summary results/week3/*.jsonl            
 uv run python src/run_prompt_bench.py --model Qwen/Qwen2.5-1.5B-Instruct        # Week 5 prompt library (GPU)
 uv run python src/run_tool_bench.py --model Qwen/Qwen2.5-1.5B-Instruct        # Week 6 tool calling, direct and MCP (GPU)
 uv run python src/run_rag_bench.py --model Qwen/Qwen2.5-1.5B-Instruct         # Week 7 RAG, all conditions (GPU)
+uv run python src/run_evals.py --model Qwen/Qwen2.5-1.5B-Instruct              # Week 8 eval set, all three systems (GPU)
 uv run python src/figures.py                                                     # rebuild figures
 ```
 
