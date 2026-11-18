@@ -11,6 +11,7 @@ One folder per week: `README.md` (what I did and found), `resources.md` (reading
 | 5 | Prompt engineering | Chain-of-Thought Prompting | [README](week_5/README.md) | [resources](week_5/resources.md) | [plans](week_5/articles/README.md) |
 | 6 | Tool calling and MCP | Toolformer; MCP specification | [README](week_6/README.md) | [resources](week_6/resources.md) | [plans](week_6/articles/README.md) |
 | 7 | Retrieval-augmented generation | Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks | [README](week_7/README.md) | [resources](week_7/resources.md) | [plans](week_7/articles/README.md) |
+| 8 | Evaluation mindset | Your AI Product Needs Evals | [README](week_8/README.md) | [resources](week_8/resources.md) | |
 
 [`phase_1_log.md`](phase_1_log.md): every paper claim from Weeks 1 to 4 and whether it reproduced (12 yes, 1 not established, 2 no).
 

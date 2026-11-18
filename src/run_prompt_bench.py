@@ -21,7 +21,7 @@ from stats import discordant, holm, mcnemar_exact, paired_bootstrap_ci, wilson_c
 
 
 class BatchLLM:
-    """Greedy batched generation from a Hugging Face chat model (left padding)."""
+    """Batched generation from a Hugging Face chat model (left padding); greedy unless asked to sample."""
 
     def __init__(self, name: str, device: str | None = None):
         import torch
@@ -35,12 +35,13 @@ class BatchLLM:
         self.model = AutoModelForCausalLM.from_pretrained(name, torch_dtype=dtype).to(self.device).eval()
 
     def generate(self, conversations: list[list[dict]], max_new_tokens: int,
-                 tools: list[dict] | None = None) -> list[tuple[str, int, int]]:
+                 tools: list[dict] | None = None, **sampling) -> list[tuple[str, int, int]]:
+        """Greedy by default; pass do_sample=True, temperature=..., top_p=... to sample (Week 8)."""
         texts = [self.tok.apply_chat_template(c, tools=tools, tokenize=False, add_generation_prompt=True) for c in conversations]
         enc = self.tok(texts, return_tensors="pt", padding=True).to(self.device)
         with self.torch.no_grad():
-            out = self.model.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False,
-                                      pad_token_id=self.tok.pad_token_id)
+            out = self.model.generate(**enc, max_new_tokens=max_new_tokens, pad_token_id=self.tok.pad_token_id,
+                                      **({"do_sample": False} | sampling))
         width = enc.input_ids.shape[1]
         results = []
         for i in range(len(texts)):

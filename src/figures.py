@@ -484,11 +484,113 @@ def week7_failures() -> None:
     save(fig, "week7_failures.png")
 
 
+# ------------------------------------------------------------------ week 8
+W8_MODELS = [("Qwen2.5-1.5B-Instruct", GREY), ("Qwen2.5-3B-Instruct", INK)]
+W8_SYSTEMS = [("prompt", "Week 5 prompt system"), ("tools", "Week 6 tool agent"), ("rag", "Week 7 RAG")]
+
+
+def week8_runs() -> dict[str, list[dict]]:
+    return {m: jsonl(RES / "week8" / f"{m}.jsonl") for m, _ in W8_MODELS if (RES / "week8" / f"{m}.jsonl").exists()}
+
+
+def week8_scorecard() -> None:
+    data = week8_runs()
+    if not data:
+        print("skip week8_scorecard: no results/week8 yet"); return
+    sys.path.insert(0, str(ROOT / "src"))
+    from eval_cases import cases
+    cs = cases()
+    fig, axes = plt.subplots(1, len(data), figsize=(4.2 + 2.2 * len(data), 13), sharey=True, squeeze=False)
+    for ax, (m, rs) in zip(axes[0], data.items()):
+        grid = np.full((len(cs), 1), np.nan)
+        for i, c in enumerate(cs):
+            runs = [r["passed"] for r in rs if r["system"] == c["system"] and r["case"] == c["id"]]
+            if runs:
+                grid[i, 0] = np.mean(runs)
+                ax.text(0, i, f"{sum(runs)}/{len(runs)}", ha="center", va="center", fontsize=7.5,
+                        color=SURFACE if np.mean(runs) > 0.55 else INK)
+        ax.imshow(grid, cmap="Blues", vmin=0, vmax=1, aspect="auto")
+        ax.set_xticks([0]); ax.set_xticklabels([m.replace("-Instruct", "").replace("Qwen2.5-", "")]); ax.grid(False)
+        for b in (15, 30):
+            ax.axhline(b - 0.5, color=INK, linewidth=1.2)
+    short = lambda t, n=40: t if len(t) <= n else t[:n - 1].rsplit(" ", 1)[0] + "…"   # noqa: E731
+    labels = [f"{c['id']}  {short(c['why'])}" for c in cs]
+    axes[0][0].set_yticks(range(len(cs))); axes[0][0].set_yticklabels(labels, fontsize=7)
+    for k, (_, name) in enumerate(W8_SYSTEMS):
+        axes[0][-1].text(1.08, k * 15 + 7, name, transform=axes[0][-1].get_yaxis_transform(), rotation=270,
+                         va="center", fontsize=9, color=INK2)
+    fig.suptitle("Week 8: the eval set, runs passed out of 6 (1 greedy, 5 sampled)", x=0.02, y=0.995, ha="left",
+                 fontweight="bold", fontsize=12)
+    fig.subplots_adjust(top=0.965)
+    save(fig, "week8_scorecard.png")
+
+
+def week8_predicted_vs_actual() -> None:
+    data = week8_runs()
+    if not data:
+        print("skip week8_predicted_vs_actual: no results/week8 yet"); return
+    sys.path.insert(0, str(ROOT / "src"))
+    from eval_cases import PREDICTIONS
+    fig, ax = plt.subplots(figsize=(8.5, 4))
+    groups = [(s, m) for s, _ in W8_SYSTEMS for m, _ in W8_MODELS if m in data]
+    w = 0.27
+    for j, (label, col) in enumerate([("My prediction", GREY), ("Passed, greedy run", BLUE), ("Passed in 5+ of 6 runs", AQUA)]):
+        vals = []
+        for s, m in groups:
+            rs = [r for r in data[m] if r["system"] == s]
+            if j == 0:
+                vals.append(sum(PREDICTIONS[(s, m)].values()))
+            elif j == 1:
+                vals.append(sum(r["passed"] for r in rs if r["run"] == 0))
+            else:
+                ids = {r["case"] for r in rs}
+                vals.append(sum(sum(r["passed"] for r in rs if r["case"] == c) >= 5 for c in ids))
+        xs = np.arange(len(groups)) + (j - 1) * w
+        ax.bar(xs, vals, w, color=col, edgecolor=SURFACE, linewidth=2, label=label)
+        for x, v in zip(xs, vals):
+            ax.text(x, v + 0.2, str(v), ha="center", fontsize=8.5)
+    ax.set_xticks(range(len(groups)))
+    ax.set_xticklabels([f"{ {'prompt': 'Prompts (W5)', 'tools': 'Tools (W6)', 'rag': 'RAG (W7)'}[s]}\n{m.split('-')[1]}"
+                        for s, m in groups], fontsize=8.5)
+    ax.set_ylim(0, 17); ax.set_ylabel("Cases passed, out of 15"); ax.grid(axis="x", visible=False)
+    ax.legend(fontsize=8.5, loc="upper left", ncol=3)
+    ax.set_title("Week 8: gut feel vs the eval set")
+    save(fig, "week8_predicted_vs_actual.png")
+
+
+def week8_checks() -> None:
+    data = week8_runs()
+    if not data:
+        print("skip week8_checks: no results/week8 yet"); return
+    rows = sorted({(r["system"], k) for rs in data.values() for r in rs for k in r["checks"]},
+                  key=lambda x: ([s for s, _ in W8_SYSTEMS].index(x[0]), x[1]))
+    fig, ax = plt.subplots(figsize=(8, 0.42 * len(rows) + 1.2))
+    h = 0.38
+    for j, (m, col) in enumerate(W8_MODELS):
+        if m not in data:
+            continue
+        vals = []
+        for s, k in rows:
+            v = [r["checks"][k] for r in data[m] if r["system"] == s and k in r["checks"]]
+            vals.append(np.mean(v) * 100 if v else 0)
+        ys = np.arange(len(rows)) + (j - 0.5) * h
+        ax.barh(ys, vals, h, color=col, label=m.replace("-Instruct", ""))
+        for y, v in zip(ys, vals):
+            ax.text(v + 1, y, f"{v:.0f}%", va="center", fontsize=7.5)
+    ax.set_yticks(range(len(rows))); ax.set_yticklabels([f"{s}: {k.replace('_', ' ')}" for s, k in rows], fontsize=8.5)
+    ax.invert_yaxis(); ax.set_xlim(0, 112); ax.set_xlabel("Share of runs passing the check (all 6 runs)")
+    ax.grid(axis="y", visible=False)
+    ax.legend(fontsize=8.5, loc="lower left", bbox_to_anchor=(0, 1.0), ncol=2)
+    ax.set_title("Week 8: which checks fail", pad=24)
+    save(fig, "week8_checks.png")
+
+
 FIGURES = [week1_token_tax, week2_what_moves_accuracy, week3_accuracy_by_size, week3_cost_vs_accuracy,
            week4_claim_audit, week4_difficulty_calibration, week4_react_minus_act, week4_power,
            week5_strategy_accuracy, week5_cost_vs_accuracy,
            week6_success_by_route, week6_malformed_types,
-           week7_accuracy_by_condition, week7_topk, week7_retrieval_sweep, week7_failures]
+           week7_accuracy_by_condition, week7_topk, week7_retrieval_sweep, week7_failures,
+           week8_scorecard, week8_predicted_vs_actual, week8_checks]
 
 if __name__ == "__main__":
     for f in FIGURES:
