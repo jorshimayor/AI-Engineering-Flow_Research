@@ -17,6 +17,7 @@ PR descriptions for the fellowship repo, ready to paste: [`pr/`](pr/).
 | [5](week5/) | Prompt library, 3+ strategies with documented deltas | Notebook, `src/` (library, data, runner, stats), 2 result files, README, figures | Not opened |
 | [6](week6/) | Two-tool pipeline with validation and repair; same tools behind MCP | Notebook, `src/` (tools, loop, MCP server, runner), tests, 2 result files, README, figures | Not opened |
 | [7](week7/) | Minimal RAG pipeline over a small document set | Notebook (executed), `src/` (corpus, pipeline, runner), tests, 2 result files, retrieval sweep, README, figures | Not opened |
+| [8](week8/) | Eval set of 10 to 15 cases per system for the Week 5 to 7 systems, scored | Notebook (executed), `src/` (cases, runner and checks, the systems under test), tests, results, scorecard, README, figures | Not opened |
 
 ## Self-review
 
@@ -90,3 +91,12 @@ PR descriptions for the fellowship repo, ready to paste: [`pr/`](pr/).
 | Small document set | Yes | 60 fictional product pages, so closed-book is a true zero |
 | Measured against baselines | Yes | Closed-book and oracle; H1 supported at both sizes; H2 equivalent at 3B, inconclusive at 1.5B (on the boundary) |
 | Gap | | Oracle at 100%, so the task is at a ceiling; templated pages; one embedding model |
+
+### Week 8
+
+| Check | Met? | Evidence or gap |
+|---|---|---|
+| 10 to 15 cases per system | Yes | 15 each for prompts, tool agent and RAG: typical, known failures, edge cases |
+| Scored | Yes | Checks per behaviour, 6 runs per case, both models; scorecard saved as a regression baseline |
+| Beyond Level 1 | Yes | 3B model as judge, compared with the checks (κ 0.77 to 0.91); predictions on record before the run |
+| Gap | | The injection case never retrieved its notice and the comparison failed at retrieval, so both tested less than intended; one judge with a one-line rubric |
