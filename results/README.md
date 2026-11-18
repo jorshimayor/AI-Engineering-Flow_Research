@@ -11,7 +11,7 @@
 | [`week5/`](week5/) | One file per model: 5 strategies × 400 GSM8K problems, with every output |
 | [`week6/`](week6/) | One file per model: 200 shopping problems × 2 routes (direct, MCP), with full transcripts; `dev/` (12-problem setup check) |
 | [`week7/`](week7/) | One file per model: 200 questions × 9 retrieval conditions, with outputs and retrieved chunk ids; `retrieval.json` (retrieval-only sweep); `dev/` (24-question gate) |
-| `week8/` | Pending: one file per model, 45 cases × 6 runs with every check; `judge.jsonl`; `scorecard.json` (regression baseline) |
+| [`week8/`](week8/) | One file per model: 45 cases × 6 runs with every output and check; `judge.jsonl`; `scorecard.json` (regression baseline) |
 
 ## Agent run format (JSONL, one episode per line)
 
